@@ -11,7 +11,7 @@ export const Board = styled.div`
   gap: 24px;
   flex: 1;
 
-  header {
+  > header {
     padding: 8px;
     font-size: 14px;
     display: flex;
