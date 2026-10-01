@@ -1,5 +1,5 @@
 import closeIcon from "../../assets/images/close-icon.svg";
-import type { Order } from '../../types/Order';
+import type { Order } from "../../types/Order";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { Actions, ModalBody, OrderDetails, Overlay } from "./styles";
 
@@ -7,25 +7,31 @@ interface OrderModalProps {
   visible: boolean;
   onClose: () => void;
   order: Order | null;
+  onCancelOrder: () => Promise<void>;
+  isLoading: boolean;
+  onChangeOrderStatus: () => void;
 }
 
-export function OrderModal({ visible, onClose, order }: OrderModalProps) {
+export function OrderModal({ visible, onClose, order, onCancelOrder, isLoading, onChangeOrderStatus }: OrderModalProps) {
   if (!visible || !order) {
     return null;
   }
 
-  const total = order.products.reduce(
-    (acc, { product, quantity }) => acc + product.price * quantity,
-    0,
-  );
+  const total = order.products.reduce((acc, { product, quantity }) => acc + product.price * quantity, 0);
 
   return (
     <Overlay>
       <ModalBody>
         <header>
           <strong>Mesa {order.table}</strong>
-          <button type="button" onClick={onClose}>
-            <img src={closeIcon} alt="Ícone de fechar" />
+          <button
+            type="button"
+            onClick={onClose}
+          >
+            <img
+              src={closeIcon}
+              alt="Ícone de fechar"
+            />
           </button>
         </header>
         <div className="status-container">
@@ -47,7 +53,10 @@ export function OrderModal({ visible, onClose, order }: OrderModalProps) {
           <strong>Itens</strong>
           <div className="order-items">
             {order.products.map(({ _id, product, quantity }) => (
-              <div className="item" key={_id}>
+              <div
+                className="item"
+                key={_id}
+              >
                 <img
                   src={`http://localhost:3001/uploads/${product.imagePath}`}
                   alt={product.name}
@@ -70,15 +79,27 @@ export function OrderModal({ visible, onClose, order }: OrderModalProps) {
         </OrderDetails>
 
         <Actions>
-          <button type="button" className="primary">
-            <span>👨‍🍳</span>
-            <strong>Iniciar produção</strong>
-          </button>
-          <button type="button" className="secondary">
+          {order.status !== "DONE" && (
+            <button
+              type="button"
+              className="primary"
+              disabled={isLoading}
+              onClick={onChangeOrderStatus}
+            >
+              <span>{order.status === "WAITING" ? "👨‍🍳" : "✅"}</span>
+              <strong>{order.status === "WAITING" ? "Iniciar produção" : "Finalizar pedido"}</strong>
+            </button>
+          )}
+
+          <button
+            type="button"
+            className="secondary"
+            onClick={onCancelOrder}
+            disabled={isLoading}
+          >
             <strong>Cancelar pedido</strong>
           </button>
         </Actions>
-
       </ModalBody>
     </Overlay>
   );
